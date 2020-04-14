@@ -383,6 +383,30 @@ for most other fonts.  In this case, if the `symbolfamily` is not
 `"Symbol"` the Cairo Graphics devices switch back to the normal ASE to UTF-8 
 conversion (with or without PUA).
 
+## R API changes
+
+The Cairo Graphics devices receive UTF-8 text from the graphics engine,
+but as described above, that text may need further transformation, for example,
+to avoid the Unicode PUA.  Those transformations occur in C code and
+are provided by functions in the R API so that other graphics devices
+can make use of them.
+
+One existing function has been modified:\
+`Rf_AdobeSymbol2utf8()`, has an additional Rboolean
+`usePUA` argument to control whether the Unicode PUA is used.
+
+Three new functions have been added:\
+`Rf_utf8toAdobeSymbol()` converts from UTF-8 to ASE, assuming that the 
+UTF-8 was generated using the PUA.\
+`Rf_utf8Toutf8NoPUA()` converts from UTF-8 with PUA to UTF-8 without PUA.\
+`Rf_utf8ToLatin1AdobeSymbol2utf8()` converts from UTF-8 that has come from
+ASE that was treated as Latin1 and then back to UTF-8 (with or without PUA).
+
+## Reproducibility
+
+All of the materials required to rebuild this blog are available on
+<a href="https://github.com/pmur002/cairo-symbolfamily-blog">github</a>.
+
 ## Acknowledgements
 
 Thanks to Gavin Simpson for the original bug report,
