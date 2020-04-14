@@ -1,0 +1,93 @@
+
++ Possible blog post on r-devel-symbolfamily branch 
+
++ Problem:
+
+  Some Linux systems (e.g., Fedora 31) have transitioned to pango >= 1.44.
+  This drops Type 1 font support and that breaks R's plotmath because 
+  R's Cairo devices hard code a "Symbol" font for plotmath AND FontConfig
+  matches that to StandardSymbolsPS.t1 (a Type 1 font) AND FontConfig's
+  font subsitution efforts are to no avail.
+
+  A sub-problem is how to specify the default "Symbol" font on different
+  systems.  This requires detecting pango >= 1.44 AND specifying a 
+  reasonable default font.
+
+  A further sub-problem is that R's plotmath converts certain R
+  expressions in certain contexts, e.g.,
+  grid::grid.text(expression(mu)), into code points in the Adobe
+  Symbol Encoding, then, for Cairo devices, it converts those code
+  points to (UTF8) Unicode code points.  But some of those conversions
+  are to a Private Use Area (PUA) in Unicode, which means that
+  "correct" Unicode fonts will not provide any PUA glyphs.  This makes
+  it hard to set sensible defaults for fonts (because only "incorrect"
+  Unicode fonts will have the PUA glyphs and those are unlikely to be
+  installed by default).  In other words, it makes it hard to set R 
+  plotmath up to run "out of the box".
+
++ Solution:
+
+  New 'symbolfamily' argument to x11() (on Linux and macOS) 
+  and png(), jpeg() et al
+  and svg(), cairo_pdf(), and cairo_postscript() (everywhere).  This allows
+  the user to select a different font family than "Symbol" for plotmath,
+  which solves the main problem.
+
+  The grSoftVersion() function has been enhanced so that it reports
+  the running pango version and whether Cairo is using FreeType.  
+  This allows us to set a different default
+  for 'symbolfamily' on different platforms.
+
+  The 'symbolfamily' argument, in addition to accepting a character
+  value, also accepts a "CairoSymbolFont", as produced by the new
+  cairoSymbolFont() function.  This function has a 'usePUA' argument
+  that specifies whether to look for PUA glyphs in the 'symbolfamily'
+  font.  This allows us to specify a "correct" Unicode font as the
+  default 'symbolfamily' on some platforms.
+
+  Default symbolfamily:
+    pango support:
+      pango < 1.44: 
+        cairoSymbolFont("symbol")
+      pango >= 1.44: 
+        x11(): (Linux or macOS [unix/x11.R])
+          cairoSymbolFont("sans", usePUA=FALSE)
+        png() etc: (Linux or macOS) [unix/png.R]
+          cairoSymbolFont("sans", usePUA=FALSE)
+        svg() etc:
+          cairoSymbolFont(family, usePUA=FALSE)
+    no pango:
+      CAIRO_HAS_FT_FONT && USE_FC:
+        Windows: (png() etc and svg() etc)
+          cairoSymbolFont("Standard Symbols L")
+        not Windows: (macOS?)
+          cairoSymbolFont("Symbol")
+      otherwise:
+        cairoSymbolFont("Symbol")
+  
+  NOTE that the 'symbolfamily' can currently only be set once at the
+  creation of a graphics device.
+
++ New API
+
+  #define utf8toAdobeSymbol	Rf_utf8toAdobeSymbol
+  #define utf8Toutf8NoPUA         Rf_utf8Toutf8NoPUA
+  #define utf8ToLatin1AdobeSymbol2utf8 Rf_utf8ToLatin1AdobeSymbol2utf8
+
++ Examples
+
+  + "Nimbus Sans" on Linux with usePUA=FALSE
+  + "Apple Symbols" on macOS with usePUA=FALSE
+
++ Known limitations
+
+  + cairo_pdf() and cairo_ps() on Linux WITHOUT pango
+
++ Thanks to ...
+
+  Brian Ripley
+  Simon Urbanek
+  Gabriel Becker
+  Inaki Ucar
+  Nicolas Mailhot
+  Gavin Simpson
