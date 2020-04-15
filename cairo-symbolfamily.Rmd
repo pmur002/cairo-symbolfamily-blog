@@ -10,7 +10,7 @@ abstract: In R 4.0.0, Cairo-based graphics devices will allow the user to select
 
 ```{r setup, include=FALSE}
 ```
-```{r eval=FALSE, include=FALSE, results="hide"}
+```{r eval=TRUE, include=FALSE, results="hide"}
 ## Run three containers, one with R-devel on Ubuntu, 
 ## one with R-devel on Fedora BEFORE fix,
 ## one with R-devel on Fedora AFTER fix
@@ -18,16 +18,19 @@ abstract: In R 4.0.0, Cairo-based graphics devices will allow the user to select
 ## (e.g., rhub/ubuntu-gcc-devel)
 system(paste0("docker run -t -d --rm ",
               "--name R-devel-ubuntu ",
+              "--net=host ",
               "-v ", getwd(), ":/home/work ",
               "-w /home/work ",
               "pmur002/ubuntu-gcc-devel"))
 system(paste0("docker run -t -d --rm ",
               "--name R-devel-fedora-problem ",
+              "--net=host ",
               "-v ", getwd(), ":/home/work ",
               "-w /home/work ",
               "pmur002/fedora-gcc-devel-problem"))
 system(paste0("docker run -t -d --rm ",
               "--name R-devel-fedora-solution ",
+              "--net=host ",
               "-v ", getwd(), ":/home/work ",
               "-w /home/work ",
               "pmur002/fedora-gcc-devel-solution"))
@@ -174,13 +177,13 @@ of from the symbol font.  This is run on an Ubuntu 16.04 system (an older Linux
 distribution) 
 and shows the intended result.
 
-```{bash eval=FALSE, echo=FALSE}
+```{bash eval=TRUE, echo=FALSE}
 docker exec R-devel-ubuntu /opt/R-devel/bin/Rscript -e 'osVersion' > cairo-symbolfamily-files/ubuntu-osVersion
 ```
 ```{r echo=FALSE}
 cat(readLines("cairo-symbolfamily-files/ubuntu-osVersion"))
 ```
-```{bash eval=FALSE, echo=FALSE, results="hide"}
+```{bash eval=TRUE, echo=FALSE, results="hide"}
 docker exec R-devel-ubuntu /opt/R-devel/bin/Rscript -e 'png("cairo-symbolfamily-files/ubuntu-test-chars.png"); source("cairo-symbolfamily-files/testChars.R"); TestChars()'
 ```
 
@@ -189,13 +192,13 @@ docker exec R-devel-ubuntu /opt/R-devel/bin/Rscript -e 'png("cairo-symbolfamily-
 The next output shows what this set of symbols looks like on a Fedora 31 system.
 This is obviously a poorer result.
 
-```{bash eval=FALSE, echo=FALSE}
+```{bash eval=TRUE, echo=FALSE}
 docker exec R-devel-fedora-problem /opt/R-devel/bin/Rscript -e 'osVersion' > cairo-symbolfamily-files/fedora-problem-osVersion
 ```
 ```{r echo=FALSE}
 cat(readLines("cairo-symbolfamily-files/fedora-problem-osVersion"))
 ```
-```{bash eval=FALSE, echo=FALSE, results="hide"}
+```{bash eval=TRUE, echo=FALSE, results="hide"}
 docker exec R-devel-fedora-problem /opt/R-devel/bin/Rscript -e 'png("cairo-symbolfamily-files/fedora-test-chars.png"); source("cairo-symbolfamily-files/testChars.R"); TestChars()'
 ```
 
@@ -210,7 +213,7 @@ on the file name in the Fedora output).
 ```{r echo=FALSE}
 cat(readLines("cairo-symbolfamily-files/ubuntu-osVersion"))
 ```
-```{bash eval=FALSE, echo=FALSE}
+```{bash eval=TRUE, echo=FALSE}
 docker exec R-devel-ubuntu fc-match symbol > cairo-symbolfamily-files/ubuntu-symbol
 ```
 ```{r echo=FALSE}
@@ -220,7 +223,7 @@ cat(readLines("cairo-symbolfamily-files/ubuntu-symbol"))
 ```{r echo=FALSE}
 cat(readLines("cairo-symbolfamily-files/fedora-problem-osVersion"))
 ```
-```{bash eval=FALSE, echo=FALSE}
+```{bash eval=TRUE, echo=FALSE}
 docker exec R-devel-fedora-problem fc-match symbol > cairo-symbolfamily-files/fedora-symbol
 ```
 ```{r echo=FALSE}
@@ -249,13 +252,13 @@ produces a much better result on Fedora 31.
 png(type="cairo", symbolfamily="NimbusSans")
 ```
 
-```{bash eval=FALSE, echo=FALSE}
+```{bash eval=TRUE, echo=FALSE}
 docker exec R-devel-fedora-solution /opt/R-devel/bin/Rscript -e 'osVersion' > cairo-symbolfamily-files/fedora-solution-osVersion
 ```
 ```{r echo=FALSE}
 cat(readLines("cairo-symbolfamily-files/fedora-solution-osVersion"))
 ```
-```{bash eval=FALSE, echo=FALSE, results="hide"}
+```{bash eval=TRUE, echo=FALSE, results="hide"}
 docker exec R-devel-fedora-solution /opt/R-devel/bin/Rscript -e 'png("cairo-symbolfamily-files/fedora-nimbus.png", type="cairo", symbolfamily="NimbusSans"); source("cairo-symbolfamily-files/testChars.R"); TestChars()'
 ```
 
@@ -268,7 +271,7 @@ the `"NimbusSans"` font specification resolves to an OpenType (TrueType) font
 ```{r echo=FALSE}
 cat(readLines("cairo-symbolfamily-files/fedora-problem-osVersion"))
 ```
-```{bash eval=FALSE, echo=FALSE}
+```{bash eval=TRUE, echo=FALSE}
 docker exec R-devel-fedora-problem fc-match NimbusSans > cairo-symbolfamily-files/fedora-nimbus
 ```
 ```{r echo=FALSE}
@@ -322,7 +325,7 @@ png(type="cairo", symbolfamily=cairoSymbolFont("NimbusSans", usePUA=FALSE))
 ```{r echo=FALSE}
 cat(readLines("cairo-symbolfamily-files/fedora-solution-osVersion"))
 ```
-```{bash eval=FALSE, echo=FALSE, results="hide"}
+```{bash eval=TRUE, echo=FALSE, results="hide"}
 docker exec R-devel-fedora-solution /opt/R-devel/bin/Rscript -e 'png("cairo-symbolfamily-files/fedora-nimbus-noPUA.png", type="cairo", symbolfamily=cairoSymbolFont("NimbusSans", usePUA=FALSE)); source("cairo-symbolfamily-files/testChars.R"); TestChars()'
 ```
 
@@ -348,7 +351,7 @@ or `""` otherwise.
 ```{r echo=FALSE}
 cat(readLines("cairo-symbolfamily-files/ubuntu-osVersion"))
 ```
-```{bash eval=FALSE, echo=FALSE}
+```{bash eval=TRUE, echo=FALSE}
 docker exec R-devel-ubuntu /opt/R-devel/bin/Rscript -e 'grSoftVersion()' > cairo-symbolfamily-files/ubuntu-grSoftVersion
 ```
 ```{r echo=FALSE}
@@ -358,7 +361,7 @@ cat(readLines("cairo-symbolfamily-files/ubuntu-grSoftVersion"), sep="\n")
 ```{r echo=FALSE}
 cat(readLines("cairo-symbolfamily-files/fedora-solution-osVersion"))
 ```
-```{bash eval=FALSE, echo=FALSE}
+```{bash eval=TRUE, echo=FALSE}
 docker exec R-devel-fedora-solution /opt/R-devel/bin/Rscript -e 'grSoftVersion()' > cairo-symbolfamily-files/fedora-grSoftVersion
 ```
 ```{r echo=FALSE}
@@ -415,7 +418,7 @@ the problem and designing the solution, and
 Brian Ripley, Simon Urbanek, and Gabriel Becker for assistance
 with testing the new features.
 
-```{bash eval=FALSE, include=FALSE}
+```{bash eval=TRUE, include=FALSE}
 ## Eval this to clean up containers
 ## Shut down two containers
 docker kill R-devel-ubuntu

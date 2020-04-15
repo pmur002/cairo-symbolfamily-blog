@@ -18,16 +18,19 @@ abstract: In R 4.0.0, Cairo-based graphics devices will allow the user to select
 ## (e.g., rhub/ubuntu-gcc-devel)
 system(paste0("docker run -t -d --rm ",
               "--name R-devel-ubuntu ",
+              "--net=host ",
               "-v ", getwd(), ":/home/work ",
               "-w /home/work ",
               "pmur002/ubuntu-gcc-devel"))
 system(paste0("docker run -t -d --rm ",
               "--name R-devel-fedora-problem ",
+              "--net=host ",
               "-v ", getwd(), ":/home/work ",
               "-w /home/work ",
               "pmur002/fedora-gcc-devel-problem"))
 system(paste0("docker run -t -d --rm ",
               "--name R-devel-fedora-solution ",
+              "--net=host ",
               "-v ", getwd(), ":/home/work ",
               "-w /home/work ",
               "pmur002/fedora-gcc-devel-solution"))
