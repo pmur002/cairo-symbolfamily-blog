@@ -1,7 +1,7 @@
 ---
 title: "Changes to Symbol Fonts for Cairo Graphics Devices"
 author: "Paul Murrell"
-date: 2020-04-21
+date: 2020-04-17
 categories: ["Internals"]
 tags: ["grid, units"]
 abstract: In R 4.0.0, Cairo-based graphics devices will allow the user to select
@@ -10,7 +10,7 @@ abstract: In R 4.0.0, Cairo-based graphics devices will allow the user to select
 
 ```{r setup, include=FALSE}
 ```
-```{r eval=TRUE, include=FALSE, results="hide"}
+```{r eval=FALSE, include=FALSE, results="hide"}
 ## Run three containers, one with R-devel on Ubuntu, 
 ## one with R-devel on Fedora BEFORE fix,
 ## one with R-devel on Fedora AFTER fix
@@ -104,7 +104,7 @@ The next code defines a new font that uses the same main font (Helvetica),
 but selects a Computer Modern (TeX) font
 for the symbol font.
 
-```{r}
+```{r echo=FALSE}
 CMitalic <- Type1Font("ComputerModern2",
                       c("Helvetica.afm", "Helvetica-Bold.afm",   
                         "Helvetica-Oblique.afm", "Helvetica-BoldOblique.afm",
@@ -115,7 +115,7 @@ We can use that new font, with its new symbol font, to produce the
 same mathematical equation as before, but with a different font used
 for the symbols.
 
-```{r fig.height=1, results="hide"}
+```{r echo=FALSE, fig.height=1, results="hide"}
 pdf("cairo-symbolfamily-files/CMitalic.pdf", family=CMitalic, height=1)
 grid.text(expression(paste(frac(1, sigma*sqrt(2*pi)), " ",
                            plain(e)^{frac(-(x-mu)^2, 2*sigma^2)})))
@@ -179,13 +179,13 @@ of from the symbol font.  This is run on an Ubuntu 16.04 system (an older Linux
 distribution) 
 and shows the intended result.
 
-```{bash eval=TRUE, echo=FALSE}
+```{bash eval=FALSE, echo=FALSE}
 docker exec R-devel-ubuntu /opt/R-devel/bin/Rscript -e 'osVersion' > cairo-symbolfamily-files/ubuntu-osVersion
 ```
 ```{r echo=FALSE}
 cat(readLines("cairo-symbolfamily-files/ubuntu-osVersion"))
 ```
-```{bash eval=TRUE, echo=FALSE, results="hide"}
+```{bash eval=FALSE, echo=FALSE, results="hide"}
 docker exec R-devel-ubuntu /opt/R-devel/bin/Rscript -e 'png("cairo-symbolfamily-files/ubuntu-test-chars.png"); source("cairo-symbolfamily-files/testChars.R"); TestChars()'
 ```
 
@@ -194,13 +194,13 @@ docker exec R-devel-ubuntu /opt/R-devel/bin/Rscript -e 'png("cairo-symbolfamily-
 The next output shows what this set of symbols looks like on a Fedora 31 system.
 This is obviously a poorer result.
 
-```{bash eval=TRUE, echo=FALSE}
+```{bash eval=FALSE, echo=FALSE}
 docker exec R-devel-fedora-problem /opt/R-devel/bin/Rscript -e 'osVersion' > cairo-symbolfamily-files/fedora-problem-osVersion
 ```
 ```{r echo=FALSE}
 cat(readLines("cairo-symbolfamily-files/fedora-problem-osVersion"))
 ```
-```{bash eval=TRUE, echo=FALSE, results="hide"}
+```{bash eval=FALSE, echo=FALSE, results="hide"}
 docker exec R-devel-fedora-problem /opt/R-devel/bin/Rscript -e 'png("cairo-symbolfamily-files/fedora-test-chars.png"); source("cairo-symbolfamily-files/testChars.R"); TestChars()'
 ```
 
@@ -215,7 +215,7 @@ on the file name in the Fedora output).
 ```{r echo=FALSE}
 cat(readLines("cairo-symbolfamily-files/ubuntu-osVersion"))
 ```
-```{bash eval=TRUE, echo=FALSE}
+```{bash eval=FALSE, echo=FALSE}
 docker exec R-devel-ubuntu fc-match symbol > cairo-symbolfamily-files/ubuntu-symbol
 ```
 ```{r echo=FALSE}
@@ -225,7 +225,7 @@ cat(readLines("cairo-symbolfamily-files/ubuntu-symbol"))
 ```{r echo=FALSE}
 cat(readLines("cairo-symbolfamily-files/fedora-problem-osVersion"))
 ```
-```{bash eval=TRUE, echo=FALSE}
+```{bash eval=FALSE, echo=FALSE}
 docker exec R-devel-fedora-problem fc-match symbol > cairo-symbolfamily-files/fedora-symbol
 ```
 ```{r echo=FALSE}
@@ -254,13 +254,13 @@ produces a much better result on Fedora 31.
 png(type="cairo", symbolfamily="NimbusSans")
 ```
 
-```{bash eval=TRUE, echo=FALSE}
+```{bash eval=FALSE, echo=FALSE}
 docker exec R-devel-fedora-solution /opt/R-devel/bin/Rscript -e 'osVersion' > cairo-symbolfamily-files/fedora-solution-osVersion
 ```
 ```{r echo=FALSE}
 cat(readLines("cairo-symbolfamily-files/fedora-solution-osVersion"))
 ```
-```{bash eval=TRUE, echo=FALSE, results="hide"}
+```{bash eval=FALSE, echo=FALSE, results="hide"}
 docker exec R-devel-fedora-solution /opt/R-devel/bin/Rscript -e 'png("cairo-symbolfamily-files/fedora-nimbus.png", type="cairo", symbolfamily="NimbusSans"); source("cairo-symbolfamily-files/testChars.R"); TestChars()'
 ```
 
@@ -273,7 +273,7 @@ the `"NimbusSans"` font specification resolves to an OpenType (TrueType) font
 ```{r echo=FALSE}
 cat(readLines("cairo-symbolfamily-files/fedora-problem-osVersion"))
 ```
-```{bash eval=TRUE, echo=FALSE}
+```{bash eval=FALSE, echo=FALSE}
 docker exec R-devel-fedora-problem fc-match NimbusSans > cairo-symbolfamily-files/fedora-nimbus
 ```
 ```{r echo=FALSE}
@@ -328,7 +328,7 @@ png(type="cairo", symbolfamily=cairoSymbolFont("NimbusSans", usePUA=FALSE))
 ```{r echo=FALSE}
 cat(readLines("cairo-symbolfamily-files/fedora-solution-osVersion"))
 ```
-```{bash eval=TRUE, echo=FALSE, results="hide"}
+```{bash eval=FALSE, echo=FALSE, results="hide"}
 docker exec R-devel-fedora-solution /opt/R-devel/bin/Rscript -e 'png("cairo-symbolfamily-files/fedora-nimbus-noPUA.png", type="cairo", symbolfamily=cairoSymbolFont("NimbusSans", usePUA=FALSE)); source("cairo-symbolfamily-files/testChars.R"); TestChars()'
 ```
 
@@ -354,7 +354,7 @@ or `""` otherwise.
 ```{r echo=FALSE}
 cat(readLines("cairo-symbolfamily-files/ubuntu-osVersion"))
 ```
-```{bash eval=TRUE, echo=FALSE}
+```{bash eval=FALSE, echo=FALSE}
 docker exec R-devel-ubuntu /opt/R-devel/bin/Rscript -e 'grSoftVersion()' > cairo-symbolfamily-files/ubuntu-grSoftVersion
 ```
 ```{r echo=FALSE}
@@ -364,7 +364,7 @@ cat(readLines("cairo-symbolfamily-files/ubuntu-grSoftVersion"), sep="\n")
 ```{r echo=FALSE}
 cat(readLines("cairo-symbolfamily-files/fedora-solution-osVersion"))
 ```
-```{bash eval=TRUE, echo=FALSE}
+```{bash eval=FALSE, echo=FALSE}
 docker exec R-devel-fedora-solution /opt/R-devel/bin/Rscript -e 'grSoftVersion()' > cairo-symbolfamily-files/fedora-grSoftVersion
 ```
 ```{r echo=FALSE}
@@ -389,16 +389,16 @@ dnf install libreoffice-opensymbol-fonts
 png(type="cairo", symbolfamily=cairoSymbolFont("OpenSymbol", usePUA=FALSE))
 ```
 
-```{bash eval=TRUE, echo=FALSE}
+```{bash eval=FALSE, echo=FALSE}
 docker exec R-devel-fedora-solution /opt/R-devel/bin/Rscript -e 'osVersion' > cairo-symbolfamily-files/fedora-solution-osVersion
 ```
 ```{r echo=FALSE}
 cat(readLines("cairo-symbolfamily-files/fedora-solution-osVersion"))
 ```
-```{bash eval=TRUE, echo=FALSE, results="hide"}
+```{bash eval=FALSE, echo=FALSE, results="hide"}
 docker exec R-devel-fedora-solution dnf -y install libreoffice-opensymbol-fonts
 ```
-```{bash eval=TRUE, echo=FALSE, results="hide"}
+```{bash eval=FALSE, echo=FALSE, results="hide"}
 docker exec R-devel-fedora-solution /opt/R-devel/bin/Rscript -e 'png("cairo-symbolfamily-files/fedora-opensymbol.png", type="cairo", symbolfamily=cairoSymbolFont("OpenSymbol", usePUA=FALSE)); source("cairo-symbolfamily-files/testChars.R"); TestChars()'
 ```
 
@@ -430,7 +430,9 @@ The Cairo Graphics devices receive UTF-8 text from the graphics engine,
 but as described above, that text may need further transformation, for example,
 to avoid the Unicode PUA.  Those transformations occur in C code and
 are provided by functions in the R API so that other graphics devices
-can make use of them.
+can make use of them.  For example, the 'Cairo' package,
+which has always allowed the user to select a symbol font,
+from R 4.0.0 will now also offer the option to not use the PUA.
 
 One existing function has been modified:\
 `Rf_AdobeSymbol2utf8()`, has an additional Rboolean
@@ -456,7 +458,7 @@ the problem and designing the solution, and
 Brian Ripley, Simon Urbanek, and Gabriel Becker for assistance
 with testing the new features.
 
-```{bash eval=TRUE, include=FALSE}
+```{bash eval=FALSE, include=FALSE}
 ## Eval this to clean up containers
 ## Shut down two containers
 docker kill R-devel-ubuntu

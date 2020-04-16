@@ -1,7 +1,7 @@
 ---
 title: "Changes to Symbol Fonts for Cairo Graphics Devices"
 author: "Paul Murrell"
-date: 2020-04-21
+date: 2020-04-17
 categories: ["Internals"]
 tags: ["grid, units"]
 abstract: In R 4.0.0, Cairo-based graphics devices will allow the user to select
@@ -18,16 +18,19 @@ abstract: In R 4.0.0, Cairo-based graphics devices will allow the user to select
 ## (e.g., rhub/ubuntu-gcc-devel)
 system(paste0("docker run -t -d --rm ",
               "--name R-devel-ubuntu ",
+              "--net=host ",
               "-v ", getwd(), ":/home/work ",
               "-w /home/work ",
               "pmur002/ubuntu-gcc-devel"))
 system(paste0("docker run -t -d --rm ",
               "--name R-devel-fedora-problem ",
+              "--net=host ",
               "-v ", getwd(), ":/home/work ",
               "-w /home/work ",
               "pmur002/fedora-gcc-devel-problem"))
 system(paste0("docker run -t -d --rm ",
               "--name R-devel-fedora-solution ",
+              "--net=host ",
               "-v ", getwd(), ":/home/work ",
               "-w /home/work ",
               "pmur002/fedora-gcc-devel-solution"))
@@ -101,7 +104,7 @@ The next code defines a new font that uses the same main font (Helvetica),
 but selects a Computer Modern (TeX) font
 for the symbol font.
 
-```{r}
+```{r echo=FALSE}
 CMitalic <- Type1Font("ComputerModern2",
                       c("Helvetica.afm", "Helvetica-Bold.afm",   
                         "Helvetica-Oblique.afm", "Helvetica-BoldOblique.afm",
@@ -112,8 +115,8 @@ We can use that new font, with its new symbol font, to produce the
 same mathematical equation as before, but with a different font used
 for the symbols.
 
-```{r fig.height=1, results="hide"}
-pdf("cairo-symbolfamily-files/CMitalic.pdf", family=CMitalic, height=2)
+```{r echo=FALSE, fig.height=1, results="hide"}
+pdf("cairo-symbolfamily-files/CMitalic.pdf", family=CMitalic, height=1)
 grid.text(expression(paste(frac(1, sigma*sqrt(2*pi)), " ",
                            plain(e)^{frac(-(x-mu)^2, 2*sigma^2)})))
 dev.off()
@@ -123,10 +126,10 @@ embedFonts("cairo-symbolfamily-files/CMitalic.pdf",
 ```
 
 ```{r echo=FALSE, results="hide"}
-system("convert -density 96 cairo-symbolfamily-files/CMitalic-embedded.pdf cairo-symbolfamily-files/CMitalic.png")
+system("convert -density 192 cairo-symbolfamily-files/CMitalic-embedded.pdf cairo-symbolfamily-files/CMitalic.png")
 ```
 
-![](/Blog/public/post/cairo-symbolfamily-files/CMitalic.png)
+![](/Blog/public/post/cairo-symbolfamily-files/CMitalic.png){ width=672px }
 
 ## Cairo graphics devices
 
@@ -141,10 +144,12 @@ like on the `pdf()` device.
 For example, if a font called "Linux Biolinum Keyboard O" is installed on our system,
 we can simply use that font name when we draw text.
 
-```{r fig.height=2}
+```{r eval=FALSE, fig.height=2}
 grid.text(c("plain", "bold", "italic", "bold-italic", "symbol"), 
           y=5:1/6, gp=gpar(fontface=1:5, fontfamily="Linux Biolinum Keyboard O"))
 ```
+
+![](/Blog/public/post/cairo-symbolfamily-files/biolinum-keyboard.png){ width=672px }
 
 However, in the output above, we can see that the symbol font looks 
 exactly like the symbol font in the first example.  That is because
@@ -280,6 +285,7 @@ cat(readLines("cairo-symbolfamily-files/fedora-nimbus"))
 The `"NimbusSans"` result shown above (for Fedora 31) 
 still has some missing symbols.  This reveals another peculiarity of
 how R generates plotmath output on Cairo Graphics devices.  
+
 Internally, plotmath works with a (single-byte) Adobe Symbol Encoding (ASE);
 each greek character or mathematical symbol corresponds to a number 
 between 0 and 255 (actually, only 32 to 254 are used and there are a number
@@ -368,6 +374,36 @@ cat(readLines("cairo-symbolfamily-files/fedora-grSoftVersion"), sep="\n")
 A Pango version of `"1.44"` or above triggers the change to 
 `cairoSymbolFont("sans", usePUA=FALSE)`.
 
+## Alternative symbol fonts
+
+Although the symbol table above is complete, the symbols provided are
+from the Nimbus Sans font and, consequently, are consistent with
+that font's style.  The new `symbolfamily` argument allows us to explore
+other options.  For example, on Fedora, we can choose to use the
+OpenSymbol font, as shown below.
+
+```{bash eval=FALSE}
+dnf install libreoffice-opensymbol-fonts
+```
+```{r eval=FALSE}
+png(type="cairo", symbolfamily=cairoSymbolFont("OpenSymbol", usePUA=FALSE))
+```
+
+```{bash eval=FALSE, echo=FALSE}
+docker exec R-devel-fedora-solution /opt/R-devel/bin/Rscript -e 'osVersion' > cairo-symbolfamily-files/fedora-solution-osVersion
+```
+```{r echo=FALSE}
+cat(readLines("cairo-symbolfamily-files/fedora-solution-osVersion"))
+```
+```{bash eval=FALSE, echo=FALSE, results="hide"}
+docker exec R-devel-fedora-solution dnf -y install libreoffice-opensymbol-fonts
+```
+```{bash eval=FALSE, echo=FALSE, results="hide"}
+docker exec R-devel-fedora-solution /opt/R-devel/bin/Rscript -e 'png("cairo-symbolfamily-files/fedora-opensymbol.png", type="cairo", symbolfamily=cairoSymbolFont("OpenSymbol", usePUA=FALSE)); source("cairo-symbolfamily-files/testChars.R"); TestChars()'
+```
+
+![](/Blog/public/post/cairo-symbolfamily-files/fedora-opensymbol.png)
+
 ## Windows and macOS
 
 Cairo Graphics devices are also available on Windows and macOS
@@ -383,13 +419,20 @@ for most other fonts.  In this case, if the `symbolfamily` is not
 `"Symbol"` the Cairo Graphics devices switch back to the normal ASE to UTF-8 
 conversion (with or without PUA).
 
+Alternative symbols fonts that are known to provide reasonable coverage
+ on those platforms
+are:  `"Apply Symbols"` on macOS and `"Cambria Math"` on Window
+(both with `usePUA=FALSE`).
+
 ## R API changes
 
 The Cairo Graphics devices receive UTF-8 text from the graphics engine,
 but as described above, that text may need further transformation, for example,
 to avoid the Unicode PUA.  Those transformations occur in C code and
 are provided by functions in the R API so that other graphics devices
-can make use of them.
+can make use of them.  For example, the 'Cairo' package,
+which has always allowed the user to select a symbol font,
+from R 4.0.0 will now also offer the option to not use the PUA.
 
 One existing function has been modified:\
 `Rf_AdobeSymbol2utf8()`, has an additional Rboolean

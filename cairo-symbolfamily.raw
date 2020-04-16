@@ -1,7 +1,7 @@
 ---
 title: "Changes to Symbol Fonts for Cairo Graphics Devices"
 author: "Paul Murrell"
-date: 2020-04-21
+date: 2020-04-17
 categories: ["Internals"]
 tags: ["grid, units"]
 abstract: In R 4.0.0, Cairo-based graphics devices will allow the user to select
@@ -104,7 +104,7 @@ The next code defines a new font that uses the same main font (Helvetica),
 but selects a Computer Modern (TeX) font
 for the symbol font.
 
-```{r}
+```{r echo={{EVAL}}}
 CMitalic <- Type1Font("ComputerModern2",
                       c("Helvetica.afm", "Helvetica-Bold.afm",   
                         "Helvetica-Oblique.afm", "Helvetica-BoldOblique.afm",
@@ -115,7 +115,7 @@ We can use that new font, with its new symbol font, to produce the
 same mathematical equation as before, but with a different font used
 for the symbols.
 
-```{r fig.height=1, results="hide"}
+```{r echo={{EVAL}}, fig.height=1, results="hide"}
 pdf("cairo-symbolfamily-files/CMitalic.pdf", family=CMitalic, height=1)
 grid.text(expression(paste(frac(1, sigma*sqrt(2*pi)), " ",
                            plain(e)^{frac(-(x-mu)^2, 2*sigma^2)})))
@@ -125,7 +125,7 @@ embedFonts("cairo-symbolfamily-files/CMitalic.pdf",
            fontpaths=file.path(getwd(), "cairo-symbolfamily-files"))
 ```
 
-```{r echo=FALSE, results="hide"}
+```{r echo={{EVAL}}, results="hide"}
 system("convert -density 192 cairo-symbolfamily-files/CMitalic-embedded.pdf cairo-symbolfamily-files/CMitalic.png")
 ```
 
@@ -144,7 +144,7 @@ like on the `pdf()` device.
 For example, if a font called "Linux Biolinum Keyboard O" is installed on our system,
 we can simply use that font name when we draw text.
 
-```{r eval=FALSE, fig.height=2}
+```{r eval={{EVAL}}, fig.height=2}
 grid.text(c("plain", "bold", "italic", "bold-italic", "symbol"), 
           y=5:1/6, gp=gpar(fontface=1:5, fontfamily="Linux Biolinum Keyboard O"))
 ```
@@ -430,7 +430,9 @@ The Cairo Graphics devices receive UTF-8 text from the graphics engine,
 but as described above, that text may need further transformation, for example,
 to avoid the Unicode PUA.  Those transformations occur in C code and
 are provided by functions in the R API so that other graphics devices
-can make use of them.
+can make use of them.  For example, the 'Cairo' package,
+which has always allowed the user to select a symbol font,
+from R 4.0.0 will now also offer the option to not use the PUA.
 
 One existing function has been modified:\
 `Rf_AdobeSymbol2utf8()`, has an additional Rboolean
